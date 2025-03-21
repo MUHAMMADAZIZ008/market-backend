@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { config } from './common/config/config';
 import { JwtModule } from '@nestjs/jwt';
 import { CategoriesModule } from './categories/categories.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { CategoriesModule } from './categories/categories.module';
     MongooseModule.forRoot(config.MONGO_URL),
     AuthModule,
     CategoriesModule,
+    ProductsModule,
   ],
 })
 export class AppModule {}

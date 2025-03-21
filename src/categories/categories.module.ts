@@ -13,5 +13,6 @@ import { JwtTokenService } from 'src/common/config/jwt.token';
   ],
   controllers: [CategoriesController],
   providers: [CategoriesService, JwtTokenService],
+  exports: [CategoriesService],
 })
 export class CategoriesModule {}
