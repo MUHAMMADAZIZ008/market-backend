@@ -15,5 +15,5 @@ export class AuthController {
   async login(@Body() loginAuthDot: LoginAuthDto) {
     return this.authService.login(loginAuthDot);
   }
-
+  
 }

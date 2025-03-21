@@ -3,7 +3,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Product } from './entities/product.entity';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { CategoriesService } from 'src/categories/categories.service';
 
 @Injectable()
@@ -21,6 +21,9 @@ export class ProductsService {
     const newProduct = new this.productModel({
       ...createProductDto,
       category: currentCategory._id,
+      discount_price:
+        createProductDto.price -
+        createProductDto.price * (createProductDto.discount / 100),
     });
     await newProduct.save();
     return {
@@ -30,8 +33,13 @@ export class ProductsService {
     };
   }
 
-  async findAll() {
-    const products = await this.productModel.find().populate('category').exec();
+  async findAll(categoryId: string, page: number, limit: number) {
+    const skip = (page - 1) * limit; // Sahifalash formulası
+    const products = await this.productModel
+      .find({ category: new Types.ObjectId(categoryId) })
+      .populate('category')
+      .skip(skip)
+      .limit(limit);
     return {
       status: 200,
       message: 'success',
@@ -39,12 +47,12 @@ export class ProductsService {
     };
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, categoryId: string) {
     const product = await this.productModel
-      .findOne({ _id: id })
+      .findOne({ _id: id }, { category: new Types.ObjectId(categoryId) })
       .populate('category')
       .exec();
-    if (product) {
+    if (!product) {
       throw new NotFoundException('Product not found!');
     }
     return {
@@ -55,7 +63,10 @@ export class ProductsService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
-    await this.findOne(id);
+    const product = await this.productModel.findOne({ _id: id });
+    if (!product) {
+      throw new NotFoundException('Product not found!');
+    }
     await this.productModel.updateOne({ _id: id }, updateProductDto);
     return {
       status: 200,
@@ -64,7 +75,10 @@ export class ProductsService {
   }
 
   async remove(id: string) {
-    await this.findOne(id);
+    const product = await this.productModel.findOne({ _id: id });
+    if (!product) {
+      throw new NotFoundException('Product not found!');
+    }
     await this.productModel.deleteOne({ _id: id });
     return {
       status: 200,

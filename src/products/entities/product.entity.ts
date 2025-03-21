@@ -8,12 +8,13 @@ export class Product {
   category: Category;
 
   @Prop()
-  title: string;
+  name: string;
 
   @Prop({
     type: [String],
+    required: false,
   })
-  image: string[];
+  images: string[];
 
   @Prop()
   description: string;
@@ -23,6 +24,12 @@ export class Product {
 
   @Prop()
   discount: number;
+
+  @Prop({ required: false })
+  discount_price: number;
+
+  @Prop()
+  quantity: number;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

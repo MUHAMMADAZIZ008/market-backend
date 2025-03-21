@@ -11,24 +11,27 @@ export class CreateProductDto {
   @IsMongoId()
   @IsNotEmpty()
   category: string;
-
   @IsString()
-  @IsNotEmpty()
-  title: string;
+  name: string;
 
   @IsArray()
+  @IsString({ each: true })
   @IsOptional()
-  image?: string[];
+  images?: string[];
 
   @IsString()
-  @IsOptional()
-  description?: string;
+  description: string;
 
   @IsNumber()
-  @IsNotEmpty()
   price: number;
 
   @IsNumber()
+  discount: number;
+
+  @IsNumber()
   @IsOptional()
-  discount?: number;
+  discount_price: number;
+
+  @IsNumber()
+  quantity: number;
 }

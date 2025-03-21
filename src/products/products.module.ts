@@ -4,6 +4,7 @@ import { ProductsController } from './products.controller';
 import { CategoriesModule } from 'src/categories/categories.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Product, ProductSchema } from './entities/product.entity';
+import { JwtTokenService } from 'src/common/config/jwt.token';
 
 @Module({
   imports: [
@@ -11,6 +12,6 @@ import { Product, ProductSchema } from './entities/product.entity';
     MongooseModule.forFeature([{ name: Product.name, schema: ProductSchema }]),
   ],
   controllers: [ProductsController],
-  providers: [ProductsService],
+  providers: [ProductsService, JwtTokenService],
 })
 export class ProductsModule {}
