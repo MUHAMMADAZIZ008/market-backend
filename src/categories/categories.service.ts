@@ -22,8 +22,6 @@ export class CategoriesService {
 
   async findAll() {
     const allCategories = await this.CategoryModel.find()
-      .populate('products')
-      .exec();
     return {
       status: 200,
       message: 'success',

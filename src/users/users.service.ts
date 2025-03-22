@@ -9,6 +9,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
 import { DeleteResult, Model } from 'mongoose';
 import { CreateBcryptPassword } from 'src/common/config/bcrypt';
+import { UserStatus } from 'src/common/enum';
 
 @Injectable()
 export class UsersService {
@@ -17,11 +18,22 @@ export class UsersService {
   ) {}
   async create(createUserDto: CreateUserDto) {
     const currentUsername = await this.findUsername(createUserDto.username);
+    const currentEmail = await this.findEmail(createUserDto.email);
+    if (
+      currentUsername &&
+      currentEmail &&
+      currentUsername.status === UserStatus.INACTIVE
+    ) {
+      return {
+        status: 201,
+        message: 'success',
+        data: currentUsername,
+      };
+    }
     if (currentUsername) {
       throw new ConflictException('Username already exists');
     }
 
-    const currentEmail = await this.findEmail(createUserDto.email);
     if (currentEmail) {
       throw new ConflictException('Email already exists');
     }
@@ -78,5 +90,18 @@ export class UsersService {
       message: 'success',
       data: deleteUser as unknown as DeleteResult,
     };
+  }
+
+  async saveOtp(otp: string, id: string) {
+    try {
+      const otpTime = Date.now() + 3000;
+      await this.UserModel.updateOne(
+        { _id: id },
+        { otp_code: otp, otp_time: otpTime },
+      );
+      return true;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 }
