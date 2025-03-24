@@ -9,16 +9,16 @@ export class JwtTokenService {
 
   async createAccessToken(payload: UserPayload) {
     const accessToken = await this.jwtService.sign(payload, {
-      secret: config.ACCESS_TOKEN_KEY,
-      expiresIn: config.ACCESS_TOKEN_TIME,
+      secret: config().ACCESS_TOKEN_KEY,
+      expiresIn: config().ACCESS_TOKEN_TIME,
     });
     return accessToken;
   }
 
   async createRefreshToken(payload: UserPayload) {
     const refreshToken = await this.jwtService.sign(payload, {
-      secret: config.REFRESH_TOKEN_KEY,
-      expiresIn: config.REFRESH_TOKEN_TIME,
+      secret: config().REFRESH_TOKEN_KEY,
+      expiresIn: config().REFRESH_TOKEN_TIME,
     });
     return refreshToken;
   }
@@ -26,7 +26,7 @@ export class JwtTokenService {
   async verifyAccessToken(token: string) {
     try {
       const payload = await this.jwtService.verify(token, {
-        secret: config.ACCESS_TOKEN_KEY,
+        secret: config().ACCESS_TOKEN_KEY,
       });
       if (!payload) {
         throw new UnauthorizedException();
@@ -40,7 +40,7 @@ export class JwtTokenService {
   async verifyRefreshToken(token: string) {
     try {
       const payload = await this.jwtService.verify(token, {
-        secret: config.REFRESH_TOKEN_KEY,
+        secret: config().REFRESH_TOKEN_KEY,
       });
       if (!payload) {
         throw new UnauthorizedException();

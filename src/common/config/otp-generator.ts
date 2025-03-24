@@ -1,12 +1,9 @@
-import * as crypto from 'crypto';
-export async function OtpGenerator(quantity: number = 6) {
-  const digits = '0123456789';
+export function generateAlphanumericOtp(length: number = 6): string {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let otp = '';
-
   for (let i = 0; i < length; i++) {
-    const index = crypto.randomInt(0, digits.length);
-    otp += digits[index];
+    otp += characters[Math.floor(Math.random() * characters.length)];
   }
-
   return otp;
 }
+

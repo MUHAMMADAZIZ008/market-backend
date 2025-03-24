@@ -14,9 +14,11 @@ import { SendMailerModule } from './mailer/mailer.module';
     JwtModule.register({
       global: true,
     }),
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     UsersModule,
-    MongooseModule.forRoot(config.MONGO_URL),
+    MongooseModule.forRoot(config().MONGO_URL),
     AuthModule,
     CategoriesModule,
     ProductsModule,

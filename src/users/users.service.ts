@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -7,9 +8,10 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './entities/user.entity';
-import { DeleteResult, Model } from 'mongoose';
+import { DeleteResult, Model, ObjectId } from 'mongoose';
 import { CreateBcryptPassword } from 'src/common/config/bcrypt';
 import { UserStatus } from 'src/common/enum';
+import { VerifyOtpDto } from 'src/auth/dto/verify-otp-dto';
 
 @Injectable()
 export class UsersService {
@@ -92,7 +94,7 @@ export class UsersService {
     };
   }
 
-  async saveOtp(otp: string, id: string) {
+  async saveOtp(otp: string, id: ObjectId) {
     try {
       const otpTime = Date.now() + 3000;
       await this.UserModel.updateOne(
@@ -103,5 +105,25 @@ export class UsersService {
     } catch (error) {
       throw new Error(error);
     }
+  }
+  async verifyOtp(otp: VerifyOtpDto) {
+    
+    const user = await this.UserModel.findOne({ otp_code: otp.otp });
+    
+    if (!user) {
+      throw new BadRequestException('wrong otp!');
+    }
+    const dateNow = Date.now();
+    if (user.otp_time > dateNow) {
+      throw new BadRequestException('OTP timeout!');
+    }
+    await this.UserModel.updateOne(
+      { _id: user._id },
+      { status: UserStatus.ACTIVE, otp_code: '', otp_time: 0 },
+    );
+    return {
+      status: 200,
+      message: 'success',
+    };
   }
 }

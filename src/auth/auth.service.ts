@@ -8,7 +8,9 @@ import { UserPayload } from 'src/common/interface';
 import { config } from 'src/common/config/config';
 import { UserStatus } from 'src/common/enum';
 import { MailerProvider } from 'src/mailer/mailer.provider';
-import { OtpGenerator } from 'src/common/config/otp-generator';
+import { generateAlphanumericOtp } from 'src/common/config/otp-generator';
+import { ObjectId } from 'mongoose';
+import { VerifyOtpDto } from './dto/verify-otp-dto';
 
 @Injectable()
 export class AuthService {
@@ -20,15 +22,14 @@ export class AuthService {
 
   async register(registerAuthDto: RegisterAuthDto) {
     const newUser = await this.userModel.create(registerAuthDto);
-    
-    const otp = await OtpGenerator(6);
-    
 
-    await this.userModel.saveOtp(otp, String(newUser.data._id));
+    const otp = await generateAlphanumericOtp(6);
+
+    await this.userModel.saveOtp(otp, newUser.data._id as ObjectId);
     await this.mailProvider.sendMail(newUser.data.email, otp);
     return {
       status: 200,
-      message: 'success',
+      message: 'Your otp has been sent to your email',
     };
   }
 
@@ -61,13 +62,18 @@ export class AuthService {
     return {
       accessToken: {
         token: accessToken,
-        expiresIn: config.ACCESS_TOKEN_TIME,
+        expiresIn: config().ACCESS_TOKEN_TIME,
       },
       refreshToken: {
         token: refreshToken,
-        expiresIn: config.REFRESH_TOKEN_TIME,
+        expiresIn: config().REFRESH_TOKEN_TIME,
       },
       user: currentUser,
     };
+  }
+
+  async verifyOtp(otp: VerifyOtpDto) {
+    const user = await this.userModel.verifyOtp(otp);
+    return user;
   }
 }
