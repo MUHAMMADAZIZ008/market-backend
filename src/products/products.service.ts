@@ -33,17 +33,29 @@ export class ProductsService {
     };
   }
 
-  async findAll(categoryId: string, page: number, limit: number) {
+  async findAll(
+    categoryId: string,
+    page: number = 1,
+    limit: number = 9,
+    maxPrice: number,
+    minPrice: number,
+  ) {
     const skip = (page - 1) * limit; // Sahifalash formulası
-    const products = await this.productModel
-      .find({ category: new Types.ObjectId(categoryId) })
-      .populate('category')
-      .skip(skip)
-      .limit(limit);
+    const [products, totalCount] = await Promise.all([
+      this.productModel
+        .find({ category: new Types.ObjectId(categoryId), price: { $lt: maxPrice, $gt: minPrice } })
+        .populate('category')
+        .skip(skip)
+        .limit(limit),
+      this.productModel.countDocuments({
+        category: new Types.ObjectId(categoryId),
+      }),
+    ]);
     return {
       status: 200,
       message: 'success',
       data: products,
+      totalCount,
     };
   }
 

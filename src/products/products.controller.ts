@@ -27,8 +27,8 @@ export class ProductsController {
 
   @Get()
   findAll(@Query() query: any) {
-    const { categoryId, page, limit } = query;
-    return this.productsService.findAll(categoryId, page, limit);
+    const { categoryId, page, limit, maxPrice, minPrice } = query;    
+    return this.productsService.findAll(categoryId, page, limit, maxPrice, minPrice);
   }
 
   @Get(':id')
